@@ -26,46 +26,30 @@ raw = re.sub(r"([.!?])", r"\1|", script)
 sentences = [s.strip() for s in raw.split("|") if s.strip()]
 font = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
-class ImgParser(HTMLParser):
-    def __init__(self, base):
-        super().__init__()
-        self.base, self.urls = base, []
-    def handle_starttag(self, tag, attrs):
-        if tag.lower() != "img": return
-        a = dict(attrs)
-        src = a.get("src") or a.get("data-src") or a.get("data-original")
-        if src: self.urls.append(urllib.parse.urljoin(self.base, src))
-
-pages = [
-    "https://www.kari.re.kr/kor/article/ATCL87374b48c/18726",
-    "https://www.kari.re.kr/kor/article/ATCL87374b48c/18705",
-    "https://www.kari.re.kr/kor/article/ATCL87374b48c/18717",
+# Wikimedia Commons / KARI archive visuals. These are explicitly treated as archive/reference footage.
+image_urls = [
+    "https://commons.wikimedia.org/wiki/Special:Redirect/file/KSLV-II_Nuri_and_the_launchpad_02.jpg",
+    "https://commons.wikimedia.org/wiki/Special:Redirect/file/KSLV-II_Nuri_outside_the_assembly_facility.jpg",
+    "https://commons.wikimedia.org/wiki/Special:Redirect/file/발사_전_최종_점검인_WDR을_위해_발사대로_이송_중인_누리호_비행_기체_1_(1711).jpeg",
+    "https://commons.wikimedia.org/wiki/Special:Redirect/file/누리호_발사대_기립_및_장착_1_(1696).jpeg",
+    "https://commons.wikimedia.org/wiki/Special:Redirect/file/누리호_발사_(1738).jpeg",
+    "https://commons.wikimedia.org/wiki/Special:Redirect/file/KSLV-II_at_the_launch_pad_CGI_Render_02.jpg",
 ]
-urls, seen = [], set()
-for page in pages:
-    try:
-        req = urllib.request.Request(page, headers={"User-Agent":"Mozilla/5.0"})
-        html = urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore")
-        p = ImgParser(page); p.feed(html)
-        for u in p.urls:
-            if u not in seen and re.search(r"\.(jpg|jpeg|png|webp)(?:\?|$)", u, re.I):
-                seen.add(u); urls.append(u)
-    except Exception as e:
-        print("image page skip:", page, e)
-
 images = []
-for i, u in enumerate(urls[:24]):
+for i, u in enumerate(image_urls):
     try:
-        ext = "." + re.search(r"\.(jpg|jpeg|png|webp)", u, re.I).group(1).lower().replace("jpeg","jpg")
+        ext = ".jpg" if not u.lower().endswith(".jpeg") else ".jpeg"
         path = imgdir / f"img_{i:02d}{ext}"
         req = urllib.request.Request(u, headers={"User-Agent":"Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=20) as r, open(path, "wb") as f: f.write(r.read())
-        if path.stat().st_size > 15000: images.append(path)
+        with urllib.request.urlopen(req, timeout=30) as r, open(path, "wb") as f:
+            f.write(r.read())
+        if path.stat().st_size > 15000:
+            images.append(path)
     except Exception as e:
-        print("image skip:", u, e)
+        print("archive image skip:", u, e)
 
 if not images:
-    raise RuntimeError("No KARI images could be downloaded; refusing to create a blank video.")
+    raise RuntimeError("No licensed archive images could be downloaded; refusing to create a blank video.")
 if len(images) < len(sentences):
     images = (images * ((len(sentences) // len(images)) + 1))[:len(sentences)]
 else:
@@ -94,7 +78,7 @@ filters = [
     f"drawtext=fontfile='{font}':text='오늘핫뉴스':fontcolor=white:fontsize=42:x=90:y=82",
     f"drawtext=fontfile='{font}':text='누리호 5차 발사 D-1':fontcolor=white:fontsize=52:x=90:y=137",
     f"drawtext=fontfile='{font}':text='내일 발사 예정 · 최종 시각은 내일 결정':fontcolor=0xd9e4f2:fontsize=25:x=90:y=205",
-    f"drawtext=fontfile='{font}':text='자료: 한국항공우주연구원':fontcolor=white@0.72:fontsize=22:x=70:y=1845",
+    f"drawtext=fontfile='{font}':text='자료화면: 한국항공우주연구원':fontcolor=white@0.72:fontsize=22:x=70:y=1845",
 ]
 for i, sentence in enumerate(sentences):
     start, end = duration*i/len(sentences), duration*(i+1)/len(sentences)
