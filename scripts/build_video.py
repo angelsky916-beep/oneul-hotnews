@@ -80,9 +80,21 @@ filters = [
 ]
 for i, sentence in enumerate(sentences):
     start, end = duration*i/len(sentences), duration*(i+1)/len(sentences)
-    cap = work / f"caption_{i:02d}.txt"; cap.write_text(sentence, encoding="utf-8")
+    cap = work / f"caption_{i:02d}.txt"
+    words = sentence.split()
+    lines, line = [], ""
+    for word in words:
+        test = (line + " " + word).strip()
+        if len(test) > 18 and line:
+            lines.append(line)
+            line = word
+        else:
+            line = test
+    if line:
+        lines.append(line)
+    cap.write_text("\\n".join(lines[:3]), encoding="utf-8")
     filters.append(
-        f"drawtext=fontfile='{font}':textfile='{cap}':fontcolor=white:fontsize=45:x=(w-text_w)/2:y=1610:"
+        f"drawtext=fontfile='{font}':textfile='{cap}':fontcolor=white:fontsize=42:line_spacing=10:x=(w-text_w)/2:y=1570:"
         f"box=1:boxcolor=0x061426@0.88:boxborderw=28:enable='between(t,{start:.3f},{end:.3f})'"
     )
 
