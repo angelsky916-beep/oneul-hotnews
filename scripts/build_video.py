@@ -30,9 +30,7 @@ font = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 image_urls = [
     "https://commons.wikimedia.org/wiki/Special:Redirect/file/KSLV-II_Nuri_and_the_launchpad_02.jpg",
     "https://commons.wikimedia.org/wiki/Special:Redirect/file/KSLV-II_Nuri_outside_the_assembly_facility.jpg",
-    "https://commons.wikimedia.org/wiki/Special:Redirect/file/발사_전_최종_점검인_WDR을_위해_발사대로_이송_중인_누리호_비행_기체_1_(1711).jpeg",
-    "https://commons.wikimedia.org/wiki/Special:Redirect/file/누리호_발사대_기립_및_장착_1_(1696).jpeg",
-    "https://commons.wikimedia.org/wiki/Special:Redirect/file/누리호_발사_(1738).jpeg",
+    "https://commons.wikimedia.org/wiki/Special:Redirect/file/KSLV-II_Nuri_First_Launch_2021-10-21.jpg",
     "https://commons.wikimedia.org/wiki/Special:Redirect/file/KSLV-II_at_the_launch_pad_CGI_Render_02.jpg",
 ]
 images = []
@@ -62,7 +60,7 @@ for i, image in enumerate(images):
     fadeout = max(0.2, segment - 0.35)
     subprocess.run([
         "ffmpeg", "-y", "-loop", "1", "-i", str(image), "-t", f"{segment:.3f}",
-        "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.04:saturation=1.08,fade=t=in:st=0:d=.35,fade=t=out:st=" + f"{fadeout:.3f}:d=.35",
+        "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.04:saturation=1.08,fade=t=in:st=0:d=0.35,fade=t=out:st=" + f"{fadeout:.3f}:d=.35",
         "-r","30","-an","-c:v","libx264","-preset","veryfast","-crf","22","-pix_fmt","yuv420p",str(clip)
     ], check=True)
     parts.append(clip)
