@@ -82,7 +82,7 @@ vf = (
     "drawtext=fontfile='" + font + "':text='누리호 5차 발사 D-1':fontcolor=white:fontsize=50:x=105:y=195,"
     # animated-ish accent
     "drawbox=x=70:y=310:w=180:h=8:color=0xe33a3a:t=fill,"
-    caption
+    + caption
 )
 
 subprocess.run([
