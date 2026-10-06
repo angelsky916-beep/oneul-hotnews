@@ -12,9 +12,7 @@ on:
       timezone: "Asia/Seoul"
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: oneul-hotnews-video
@@ -23,11 +21,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
 
       - name: Install FFmpeg and Korean font
         run: |
@@ -38,14 +36,24 @@ jobs:
       - name: Build MP4
         run: python3 scripts/build_video.py
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Publish latest MP4 to public media branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin media || true
+          git checkout --orphan media
+          git rm -rf . || true
+          cp build/latest.mp4 latest.mp4
+          git add latest.mp4
+          git commit -m "Update latest Short"
+          git push --force origin media
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Upload build artifact for diagnostics
+        uses: actions/upload-artifact@v4
         with:
-          path: public
-
-      - name: Deploy Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: latest-short
+          path: build/latest.mp4
+          retention-days: 1
