@@ -44,12 +44,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin media || true
-          git checkout --orphan media
+          git checkout --orphan media-new
           git rm -rf . || true
           cp build/latest.mp4 latest.mp4
           git add latest.mp4
           git commit -m "Update latest Short"
-          git push --force origin media
+          git push --force origin media:media
 
       - name: Upload build artifact for diagnostics
         uses: actions/upload-artifact@v4
