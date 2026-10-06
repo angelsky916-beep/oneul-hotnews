@@ -49,7 +49,7 @@ jobs:
           cp build/latest.mp4 latest.mp4
           git add latest.mp4
           git commit -m "Update latest Short"
-          git push --force origin media:media
+          git push --force origin media-new:media
 
       - name: Upload build artifact for diagnostics
         uses: actions/upload-artifact@v4
