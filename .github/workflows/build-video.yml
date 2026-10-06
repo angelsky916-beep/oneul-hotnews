@@ -1,0 +1,51 @@
+name: Build today's Short
+
+on:
+  push:
+    paths:
+      - "content/latest.json"
+      - "scripts/build_video.py"
+      - ".github/workflows/build-video.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "15 0 * * *"
+      timezone: "Asia/Seoul"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: oneul-hotnews-video
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install FFmpeg and Korean font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-cjk python3-pip
+          python3 -m pip install --disable-pip-version-check edge-tts
+
+      - name: Build MP4
+        run: python3 scripts/build_video.py
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
