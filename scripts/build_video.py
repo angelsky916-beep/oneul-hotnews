@@ -60,7 +60,7 @@ for i, image in enumerate(images):
     fadeout = max(0.2, segment - 0.35)
     subprocess.run([
         "ffmpeg", "-y", "-loop", "1", "-i", str(image), "-t", f"{segment:.3f}",
-        "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.04:saturation=1.08,fade=t=in:st=0:d=0.35,fade=t=out:st=" + f"{fadeout:.3f}:d=.35",
+        "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.04:saturation=1.08,fade=t=in:st=0:d=0.35,fade=t=out:st=" + f"{fadeout:.3f}:d=0.35",
         "-r","30","-an","-c:v","libx264","-preset","veryfast","-crf","22","-pix_fmt","yuv420p",str(clip)
     ], check=True)
     parts.append(clip)
